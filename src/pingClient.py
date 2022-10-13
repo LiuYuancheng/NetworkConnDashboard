@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 # Name:        pingClient.py
 #
-# Purpose:     This module will ping the destination ip/url dict periodicly, save 
+# Purpose:     This module will ping the destination ip/url dict periodically, save 
 #              the ping result in local disk and report result to the server side.
 #
 # Author:      Yuancheng Liu

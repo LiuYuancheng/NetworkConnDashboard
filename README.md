@@ -59,6 +59,9 @@ graph LR;
 2022-10-13 13:43:01,852 INFO     [Singtel]: min:4.92,avg:7.16,max:8.91
 ```
 
+- Report to the hub by using UDP [port 3001]
+
+
 
 
 **monitorHub** 
@@ -77,9 +80,151 @@ graph LR;
     pingClient -- report result to data collector --> data_collecter
 ```
 
+- Save every ping data as a node in influxDB [table: gatewayDB]
+- Start data manager/collector to start a UPD server to handle the client data submit request. 
+- Grafana data fetch sql example: `SELECT last("avg") FROM "Google" WHERE $timeFilter GROUP BY time($__interval) fill(none)`
 
 
 
+------
+
+### Program Setup
+
+###### Development Environment : Python3.7.4, HTML+flask, Grafana Dashboard, InfluxDB.
+
+#### Additional Lib/Software Need
+
+##### 1.Python Lib installation
+
+- **pythonping**: https://pypi.org/project/pythonping/ , Install: `pip install pythonping`
+- **influxdb**: https://pypi.org/project/influxdb/ , install: `pip install influxdb`
+
+##### 2.Grafana installation
+
+- Windows: https://grafana.com/docs/grafana/latest/setup-grafana/installation/windows/
+- Ubuntu: 
+
+##### 3.InfluxDB installation
+
+- Windows: https://docs.influxdata.com/influxdb/v2.4/install/?t=Windows
+- Ubuntu: https://docs.influxdata.com/influxdb/v1.8/introduction/install/
+
+###### Hardware Needed: None
+
+
+
+#### Program files list 
+
+| Program File        | Execution Env | Description                                                  |
+| ------------------- | ------------- | ------------------------------------------------------------ |
+| src/influxClient.py | python3       | Monitor hub data manager:  run as the bridge(data manager) between the influxDB database and all the report-clients. It will collect the message from the ping clients, do data filtering and insert valid data in the database. |
+| src/pingClient.py   | python3       | This module will ping the destination ip/url in the dict periodically, save the ping result in local disk and report result to the server side. |
+| src/Log.py          |               | message log module.                                          |
+| src/udpCom.py       |               | UDP data communication module.                               |
+
+
+
+------
+
+### Program Usage
+
+
+
+##### Deploy the ping client script in the cluster need to monitored
+
+1. Copy the src in one of the server/computer/laptop in the cluster, make sure the port 3001 UDP egress is configured as 'enable'
+
+2. Change the Hub ipaddress and the test mode flag in the file `pingClient.py`  as show below:
+
+```
+TEST_MD = True  # Test mode flag.
+HUB_IP = ('127.0.0.1', 3001) if TEST_MD else ('172.18.178.6', 3001) 
+```
+
+3. Add the ping destination in the address dictionary as shown below :
+
+```
+ipAdrrDict = {
+    'Google':   'www.google.com.sg',
+    'CR1':      '172.18.178.10',
+    'Sutd':     '202.94.70.56',
+    'Singtel':  'www.singtel.com.sg',
+    'Gov_sg':   'gov.sg',
+    'Bbc_co_uk':'BBC.CO.UK'
+}
+```
+
+4. Run the ping client program:
+
+```
+Win cmd: python pingClient.py
+Ubuntu cmnd: sudo python3 pingClient.py
+```
+
+
+
+##### Deploy the monitor hub 
+
+**Step-1: Start the influxDB service** 
+
+Windows: Go to the influxDB installation folder and run the file `influxd.exe`
+
+```
+example: D:\Tools\InfluxDB\influxdb-1.8.1-1 .influxd.exe
+```
+
+Ubuntu:
+
+```
+
+```
+
+**Step-2: Start the Grafana service**
+
+Windows: auto run after you finish the config
+
+Ubuntu:
+
+```
+sudo systemctl restart grafana-server
+sudo systemctl status grafana-server
+```
+
+**Step-3: run the monitor hub main program** 
+
+```
+python influxClient.py
+```
+
+**Step-4: Access the dashboard**
+
+Open dashboard url:  http://127.0.0.1:3000/ to access the dashboard: 
+
+![](doc/img/dashboard2.png)
+
+Default Grafana admin password `admin / admin`
+
+
+
+------
+
+### Problem and Solution
+
+Refer to `doc/ProblemAndSolution.md`
+
+
+
+
+
+------
+
+### Reference Link
+
+
+
+------
+
+> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 13/10/2022
 
 
 
