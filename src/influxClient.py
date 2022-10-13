@@ -1,34 +1,32 @@
 #!/usr/bin/python
 #-----------------------------------------------------------------------------
-# Name:        databaseMgr.py
+# Name:        influxClient.py
 #
-# Purpose:     This module will provide a influx database manager to collect the 
-#              gateway feed back data by UDP and insert to influx database which
-#              will be used for the grafana dashboard.
+# Purpose:     This module will run as the bridge(data manager) between the influxDB
+#              database and all the report-clients. It will collect the message from
+#              the ping clients, do data filtering and insert valid data in the
+#              database.
 #
 # Author:      Yuancheng Liu
 #
-# Created:     2019/01/15
+# Created:     2022/10/12
 # Copyright:   
 # License:     
 #-----------------------------------------------------------------------------
 
-from random import randint
-import time
-import udpCom
+
 import threading
-from statistics import mean
-from datetime import datetime
-
 from influxdb import InfluxDBClient
-from tcp_latency import measure_latency
 
+import udpCom
+
+# Init the global value:
 UDP_PORT = 3001
-TEST_MODE = False   # test mode flag.
-LAT_PERIOD = 5      # latency periodic check time.
-RPT_PERIOD = 2      # time period to insert the data to data base.
+TEST_MODE = False       # test mode flag.
+TB_NAME = 'gatewayDB'   # influx DB table name.
 
-
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 class ServThread(threading.Thread):
     """ Server thread to generate a UDP server to handle the gateway client's
         feedback data.
@@ -65,13 +63,24 @@ class InfluxCli(object):
             dbInfo) == 3 else ('root', 'root', 'gatewayDB')
         #self.dbClient = InfluxDBClient('localhost', 8086, 'root', 'root', 'quantumGWDB')
         # link to data base:
-        self.dbClient = InfluxDBClient(ip, port, user, pwd, dbName)
+        try:
+            self.dbClient = InfluxDBClient(ip, port, user, pwd, dbName)
+        except Exception as e:
+            print("Can not connect to the data base, please check whether the influxDB service is running. \n" 
+                + "- Windows:   go to D:\\Tools\\InfluxDB\\influxdb-1.8.1-1 and run influxd.exe \n"
+                + "- Ubuntu:    sudo systemctl start influxdb" )
+            exit()
         # state the UDP server:
-        server = ServThread(self, 0, "server thread")
-        server.start()
+        self.udpServer = ServThread(self, 0, "server thread")
         print("inited")
 
+#-----------------------------------------------------------------------------
+    def startService(self):
+        print("Service started")
+        self.udpServer.start()
 
+
+#-----------------------------------------------------------------------------
     def msgHandler(self, msg=None, ipAddr=None):
         """ handle the feed back message."""
         if isinstance(msg, bytes): msg = msg.decode('utf-8')
@@ -79,7 +88,6 @@ class InfluxCli(object):
         gwName, minP, avgP, maxP = dataList
         self.writePingData(gwName, float(minP), float(avgP), float(maxP))
         print(msg)
-
 
 #-----------------------------------------------------------------------------
     def writePingData(self, gwName, minP, avgP, maxP):
@@ -104,10 +112,8 @@ class InfluxCli(object):
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 def main():
-    client = InfluxCli(ipAddr=('localhost', 8086), dbInfo=('root', 'root', 'gatewayDB'))
-    #for i in range(1000):
-    #    client.writePingData('www.google.com')
-    #    time.sleep(2)
+    client = InfluxCli(ipAddr=('localhost', 8086), dbInfo=('root', 'root', TB_NAME))
+    client.startService()
 
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':
