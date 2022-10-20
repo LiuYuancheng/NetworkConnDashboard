@@ -1,0 +1,452 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 7,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 5,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "content": "### NCL-CIDEX Connection Monitor Hub\n---\n         ",
+        "mode": "markdown"
+      },
+      "pluginVersion": "7.1.0",
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 5,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "bgColor": "",
+        "clockType": "12 hour",
+        "countdownSettings": {
+          "endCountdownTime": "2022-10-20T17:07:08+08:00",
+          "endText": "00:00:00"
+        },
+        "dateSettings": {
+          "dateFormat": "YYYY-MM-DD",
+          "fontSize": "20px",
+          "fontWeight": "normal",
+          "showDate": true
+        },
+        "mode": "time",
+        "timeSettings": {
+          "fontSize": "24px",
+          "fontWeight": "bold"
+        },
+        "timezone": "",
+        "timezoneSettings": {
+          "fontSize": "18px",
+          "fontWeight": "normal",
+          "showTimezone": false,
+          "zoneFormat": "offsetAbbv"
+        }
+      },
+      "pluginVersion": "7.1.1",
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "type": "grafana-clock-panel"
+    },
+    {
+      "dashboardFilter": "pingDashboard",
+      "dashboardTags": [],
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "folderId": null,
+      "gridPos": {
+        "h": 4,
+        "w": 11,
+        "x": 8,
+        "y": 0
+      },
+      "id": 2,
+      "limit": 10,
+      "nameFilter": "",
+      "onlyAlertsOnDashboard": false,
+      "pluginVersion": "7.1.1",
+      "show": "current",
+      "sortOrder": 1,
+      "stateFilter": [],
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Connection Alert Panel",
+      "type": "alertlist"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "folderId": null,
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "headings": true,
+      "id": 9,
+      "limit": 10,
+      "pluginVersion": "7.1.0",
+      "query": "",
+      "recent": false,
+      "search": false,
+      "starred": true,
+      "tags": [],
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "type": "dashlist"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 8,
+        "x": 0,
+        "y": 2
+      },
+      "id": 4,
+      "options": {
+        "content": "<img src=\"https://itrust.sutd.edu.sg/wp-content/uploads/2022/07/cidex.jpg\" alt=\"drawing\" width=\"600\"/>\r\n\r\n<img src=\"https://user-images.githubusercontent.com/26474823/196844958-0b8c7689-d602-420a-b005-3c9ac1b3ed16.png\" alt=\"drawing\" width=\"600\"/>",
+        "mode": "html"
+      },
+      "pluginVersion": "7.1.0",
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Workflow diagram panel",
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 16,
+        "x": 8,
+        "y": 4
+      },
+      "header_js": "{}",
+      "id": 6,
+      "method": "iframe",
+      "mode": "html",
+      "params_js": "{}",
+      "pluginVersion": "7.1.1",
+      "request": "http",
+      "responseType": "text",
+      "showErrors": true,
+      "showTime": false,
+      "showTimeFormat": "LTS",
+      "showTimePrefix": null,
+      "showTimeValue": "request",
+      "skipSameURL": true,
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "templateResponse": true,
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Connection_map",
+      "type": "ryantxu-ajax-panel",
+      "url": "http://127.0.0.1:5000/",
+      "withCredentials": false
+    }
+  ],
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "pingMainpage",
+  "uid": "G6VKF9S4k",
+  "version": 11
+}

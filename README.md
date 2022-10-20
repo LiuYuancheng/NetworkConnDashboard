@@ -102,14 +102,18 @@ graph LR;
 ##### 2.Grafana installation
 
 - Windows: https://grafana.com/docs/grafana/latest/setup-grafana/installation/windows/
-- Ubuntu: 
+- Ubuntu: https://computingforgeeks.com/how-to-install-grafana-on-ubuntu-linux-2/
 
 ##### 3.InfluxDB installation
 
 - Windows: https://docs.influxdata.com/influxdb/v2.4/install/?t=Windows
-- Ubuntu: https://docs.influxdata.com/influxdb/v1.8/introduction/install/
+- Ubuntu: https://docs.influxdata.com/influxdb/v1.8/introduction/install/ or https://docs.influxdata.com/influxdb/v1.8/introduction/get-started/
 
 ###### Hardware Needed: None
+
+
+
+------
 
 
 
@@ -212,7 +216,7 @@ Default Grafana admin password `admin / admin`
 
 Refer to `doc/ProblemAndSolution.md`
 
-
+<img src="https://user-images.githubusercontent.com/26474823/196844958-0b8c7689-d602-420a-b005-3c9ac1b3ed16.png" alt="drawing" width="600"/>
 
 
 
