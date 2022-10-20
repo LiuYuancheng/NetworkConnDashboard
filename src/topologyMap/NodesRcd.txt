@@ -1,0 +1,11 @@
+# Put all nodes information info you want to add to database in this file.
+# Node infor formate: id :{idx:name}
+#Control Hub:{"no": 0, "name":"Control Hub", "ipAddr":"172.18.178.6", "lat":1.2948231, "lng":103.774, "type":"HB", "rptTo":0, "actF":0}
+MPH:{"no": 0,"name": "MPH","ipAddr": "119.74.140.3","lat":1.2948237,"lng":103.7742064,"type": "GW","rptTo":0,"actF": 0}
+Google:{"no": 1, "name": "Google.SG", "ipAddr": "74.125.190.0", "lat":1.3036, "lng":103.8554, "type": "GW", "rptTo":0, "actF": 0}
+Gov:{"no": 2,"name": "Gov.sg","ipAddr": "160.96.215.119","lat":1.3673,"lng":103.8014,"type": "GW","rptTo":0,"actF": 0}
+SUTD:{"no": 3,"name": "SUTD","ipAddr": "202.94.70.56","lat":1.3413,"lng":103.9559,"type": "GW", "rptTo":0, "actF": 0}
+Singtel:{"no": 4,"name": "Singtel","ipAddr": "119.74.140.3","lat":1.3691,"lng":103.8863,"type": "GW","rptTo":0,"actF": 0}
+BBC_UK:{"no": 5,"name": "BBC.co.Uk","ipAddr": "119.74.140.3","lat":51.4964,"lng":-0.1224,"type": "GW","rptTo":0,"actF": 0}
+
+#Control Hub 2:{"no": 5,"name": "Control Hub 2","ipAddr": "10.0.0.5","lat":1.3525,"lng":103.9447,"type": "HB","rptTo":5,"actF": 0}
