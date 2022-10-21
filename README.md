@@ -1,14 +1,22 @@
 # Network Connection Dashboard [Ping]
 
-**Program Design Purpose**: This program is a monitor hub program to check and display the servers/nodes connection state in each clusters' internal network. It can also used to monitor the network connection from a network to some specific peer/destination. 
+**Program Design Purpose**: This program is a monitor hub system to check and display the servers/nodes connection state in each clusters' internal network. It can also used to monitor the network connection from a network to different specific peer/destination. 
 
 [TOC]
 
+
+
 ------
+
+
 
 ### Introduction
 
-We want to check the NUS-COM3's internet and ethernet connection during a cyber-event. The system contents two pars: 
+![](doc/img/connectionHub.gif)
+
+
+
+We want to check the NUS-COM3 multi purpose hall (MPH) 's internet and ethernet connection during a cyber-event. The system contents two pars: 
 
 1.  **pingClient** program: the pingClient program is the agent program running on any of the computer inside the cluster. It contents a ping list and will ping the destination ip-address/domain periodically, after collected the enough data, it will report the result to the monitor hub for data visualization. It will also keep all the ping data in local storage as a back incase the client lose the connection to the monitor hub.
 2.  **monitorHub** program: The monitorHub program is a web-host program with one data manager to collect the data from all the client and save the processed data into database , one dataBase to store the data and one dashboard host to allow the user to check the real time cluster state. 
@@ -19,11 +27,19 @@ This is the system work topology diagram:
 
 `version 0.1`
 
-This is the dashboard View:
+Web-dashboard UI view: 
+
+The Web dashboard contents 2 part: 
+
+**Home Page**: The home page will show a google map marked the ping client server's geo-location (GPS-position) and the ping destination, a dashboard list to show all the ping detail dashboards and a alert list to show all the connection alert. 
+
+![](doc/img/homePage.png)
+
+
+
+**Ping Detail Dashboard**: The ping dashboard will show all the ping chart diagram of the pingClient to every destination. 
 
 ![](doc/img/dashboard1.png)
-
-
 
 
 
