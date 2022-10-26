@@ -63,7 +63,8 @@ ipAdrrDict = {
 # UDP report connector
 iConnector = udpCom.udpClient(HUB_IP)
 
-for _ in range(PING_TM):
+#for _ in range(PING_TM):
+while True:
     for item in ipAdrrDict.items():
         key, val = item
         data = ping(val, timeout=1, verbose=False)
@@ -71,7 +72,7 @@ for _ in range(PING_TM):
         Log.info('[%s]: min:%s,avg:%s,max:%s', key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms))
         msg = ';'.join((key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms)))
         resp = iConnector.sendMsg(msg, resp=False)
-        time.sleep(1)
-    time.sleep(3)
+        time.sleep(3)
+    time.sleep(30)
 
 Log.info("Finished the ping test.")

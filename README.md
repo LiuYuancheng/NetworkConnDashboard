@@ -49,7 +49,7 @@ The Web dashboard contents 2 part:
 
 The system workflow diagram will be show below:
 
-![](doc/img/workflowDiagram.png)
+![](doc/img/workflowDiagram2.png)
 
 ##### pingClient
 
@@ -218,7 +218,11 @@ python influxClient.py
 
 **Step-4: Access the dashboard**
 
-Open dashboard url:  http://127.0.0.1:3000/ to access the dashboard: 
+Open dashboard url:  http://127.0.0.1:3000/ to access the dashboard home page: 
+
+![](doc/img/homepage.png)
+
+Then select the dashboard in the dashboard list:
 
 ![](doc/img/dashboard2.png)
 
