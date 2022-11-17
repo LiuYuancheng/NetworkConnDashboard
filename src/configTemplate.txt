@@ -1,0 +1,15 @@
+# hub server address
+hub_ipAddress:('127.0.0.1', 3001)
+
+# ping interval
+ping_interval:30
+ping_peers: pingPeers.json
+
+
+# Telegram parameters
+# telegram bot authorization token
+bot_token:
+# Channel ID
+chat_id:
+# Report count:
+report_count:5

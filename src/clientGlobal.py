@@ -18,6 +18,7 @@ For good coding practice, follow the following naming convention:
 """
 
 import os, sys
+import json
 
 print("Current working directory is : %s" % os.getcwd())
 dirpath = os.path.dirname(__file__)
@@ -33,5 +34,28 @@ gTopDir = dirpath[:idx + len(TOPDIR)] if idx != -1 else dirpath   # found it - t
 gLibDir = os.path.join(gTopDir, LIBDIR)
 if os.path.exists(gLibDir):
     sys.path.insert(0, gLibDir)
+
+# init the logger
 import Log
 Log.initLogger(gTopDir, 'Logs', APP_NAME[0], APP_NAME[1], historyCnt=100, fPutLogsUnderDate=True)
+
+# init the config file loader
+import ConfigLoader
+CFG_FILE = os.path.join(gTopDir, 'config.txt')
+iCfgDict = ConfigLoader.ConfigLoader(CFG_FILE, mode='r').getJson()
+
+# server hub config 
+HUB_IP = eval(iCfgDict['hub_ipAddress'])
+PING_INT = int(iCfgDict['ping_interval'])   # interval(sec) between 2 ping action.
+
+# Telegram config
+BOT_TOKEN = iCfgDict['bot_token']
+CHAT_ID = iCfgDict['chat_id']
+RPT_COUNT = int(iCfgDict['report_count'])
+
+
+
+PEER_JSON = os.path.join(gTopDir, iCfgDict['ping_peers'])
+PEER_DICT = None
+with open(PEER_JSON, 'r') as fh:
+    PEER_DICT = json.load(fh)

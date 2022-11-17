@@ -13,113 +13,77 @@
 # License:     n.a
 #-----------------------------------------------------------------------------
 
-import os
 import time
-from pythonping import ping
 import requests
+from pythonping import ping
 from datetime import datetime
 from statistics import mean
-import udpCom
+
+import clientGlobal as gv
+# import the lib modules
 import Log
-
-
-
-# Config the local data/log storage folder
-print("Current working directory is : %s" % os.getcwd())
-dirpath = os.path.realpath(__file__)
-print("Current source code location : %s" % dirpath)
-APP_NAME = ('pingClient', 'ping')
-
-# Init the log module
-TOPDIR = 'src'
-idx = dirpath.find(TOPDIR)
-gTopDir = dirpath[:idx + len(TOPDIR)] if idx != -1 else dirpath   # found it - truncate right after TOPDIR
-#print('Top dir: %s' %str(gTopDir))
-Log.initLogger(gTopDir, 'Logs', APP_NAME[0], APP_NAME[1], historyCnt=100, fPutLogsUnderDate=True)
+import udpCom
 
 TEST_MD = True  # Test mode flag.
-
-HUB_IP = ('127.0.0.1', 3001) if TEST_MD else ('172.18.178.6', 3001) 
-PING_TM = 100
-
-# test address:
-# ipAdrrDict = {
-#     'Google':'www.google.com.sg',
-#     'CR1': '172.18.178.10',
-#     'Sutd': '202.94.70.56'
-# }
-
-ipAdrrDict = {
-    'Google':   'www.google.com.sg',
-    'CR1':      '172.18.178.10',
-    'Sutd':     '202.94.70.56',
-    'Singtel':  'www.singtel.com.sg',
-    'Gov_sg':   'gov.sg',
-    'Bbc_co_uk':'BBC.CO.UK'
-}
-
-pingRst = {
-    'Google': [],
-    'CR1': [],
-    'Sutd': [],
-    'Singtel': [],
-    'Gov_sg': [],
-    'Bbc_co_uk': [],
-}
-
-count = 5 # used to count the time 
-
-BOT_TOKEN = "refer to the file <pingClientRun.py>"
-CHAT_ID = "-1001547453974"
-
-# BBC.CO.UK
-# 172.16.1.10 (vcentre)
-# 172.18.178.6 
-# singtel.com.sg
-# gov.sg
-
+serverIDaddr = ('127.0.0.1', 3001) if TEST_MD else gv.HUB_IP 
+peerDict = gv.PEER_DICT
+pingRst = {}    # ping result dict
 # UDP report connector
-iConnector = udpCom.udpClient(HUB_IP)
+iConnector = udpCom.udpClient(serverIDaddr)
 
-#for _ in range(PING_TM):
-while True:
-    for item in ipAdrrDict.items():
+#-----------------------------------------------------------------------------
+def resetResult():
+    for k in peerDict.keys():
+        pingRst[k] = []
+
+#-----------------------------------------------------------------------------
+def updateTeleBot():
+    timeStr = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    msg = '\n'.join((
+        'NCL-MPH Connection HUB report:', 
+        'Time: %s' %timeStr,
+        'During passed 5 min each peers avg ping are:'))
+    for item in pingRst.items(): 
         key, val = item
-        data = ping(val, timeout=1, verbose=False)
-        print(" Peer [%s] ping min: %s ms, avg: %s ms, max: %s ms" % (key, str(data.rtt_min_ms),  str(data.rtt_avg_ms), str(data.rtt_max_ms)))
-        Log.info('[%s]: min:%s,avg:%s,max:%s', key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms))
-        pingRst[key].append(data.rtt_avg_ms)
-        msg = ';'.join((key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms)))
-        resp = iConnector.sendMsg(msg, resp=False)
-        time.sleep(5)
-    count -= 1
-    # call telegram API to message the reuslt to group 
-    if count == 0:
-        timeStr = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        msg = 'NCL-MPH Connection HUB report: \n'
-        msg+= 'Time: %s \n' %timeStr
-        msg+= 'During passed 5 min each peers avg ping are: \n'
-        for item in pingRst.items(): 
-            key, val = item
-            msg += str(' - '+ key +' : '+ str( round(mean(val),3))+' ms \n')
-        try:
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
-            requests.get(url).json()
-            pass 
-        except Exception as e:
-            Log.error('report to telegram error:')
-            Log.info(str(e))
-            pass
-        # reset the reault:
-        pingRst = {
-            'Google': [],
-            'CR1': [],
-            'Sutd': [],
-            'Singtel': [],
-            'Gov_sg': [],
-            'Bbc_co_uk': [],
-        }
-        count = 6
-    time.sleep(30)
+        msg += str(' - '+ key +' : '+ str( round(mean(val),3))+' ms \n')
+    try:
+        url = f"https://api.telegram.org/bot{gv.BOT_TOKEN}/sendMessage?chat_id={gv.CHAT_ID}&text={msg}"
+        requests.get(url).json()
+    except Exception as e:
+        Log.error('report to telegram error:')
+        Log.exception(str(e))
 
-Log.info("Finished the ping test.")
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+def main():
+    countT = gv.RPT_COUNT
+    resetResult()
+    #for _ in range(PING_TM):
+    while True:
+        # ping the peers one by one.
+        for item in peerDict.items():
+            key, val = item
+            try:
+                data = ping(val, timeout=1, verbose=False)
+                print(" Peer [%s] ping min: %s ms, avg: %s ms, max: %s ms" % (key, str(data.rtt_min_ms),  str(data.rtt_avg_ms), str(data.rtt_max_ms)))
+                Log.info('[%s]: min:%s,avg:%s,max:%s', key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms))
+                pingRst[key].append(data.rtt_avg_ms)
+                msg = ';'.join((key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms)))
+                resp = iConnector.sendMsg(msg, resp=False)
+                time.sleep(1)
+            except Exception as e:
+                Log.exception(e)
+
+        countT -= 1
+        # call telegram API to message the reuslt to group 
+        if countT == 0:
+            updateTeleBot()
+            resetResult()
+            countT = gv.RPT_COUNT
+        time.sleep(30)
+    Log.info("Finished the ping test.")
+
+#-----------------------------------------------------------------------------
+if __name__ == '__main__':
+    main()
+
