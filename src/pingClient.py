@@ -30,11 +30,14 @@ peerDict = gv.PEER_DICT
 pingRst = {}    # ping result dict
 # UDP report connector
 iConnector = udpCom.udpClient(serverIDaddr)
+countT = gv.RPT_COUNT
 
 #-----------------------------------------------------------------------------
 def resetResult():
+    global countT
     for k in peerDict.keys():
         pingRst[k] = []
+    countT = gv.RPT_COUNT
 
 #-----------------------------------------------------------------------------
 def updateTeleBot():
@@ -56,7 +59,7 @@ def updateTeleBot():
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 def main():
-    countT = gv.RPT_COUNT
+    global countT
     resetResult()
     #for _ in range(PING_TM):
     while True:
@@ -76,11 +79,8 @@ def main():
 
         countT -= 1
         # call telegram API to message the reuslt to group 
-        if countT == 0:
-            updateTeleBot()
-            resetResult()
-            countT = gv.RPT_COUNT
-        time.sleep(30)
+        if countT == 0: updateTeleBot()
+        time.sleep(gv.PING_INT)
     Log.info("Finished the ping test.")
 
 #-----------------------------------------------------------------------------

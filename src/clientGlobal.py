@@ -23,7 +23,7 @@ import json
 print("Current working directory is : %s" % os.getcwd())
 dirpath = os.path.dirname(__file__)
 print("Current source code location : %s" % dirpath)
-APP_NAME = ('ConnHub', 'server')
+APP_NAME = ('pingClient', 'ping')
 
 TOPDIR = 'src'
 LIBDIR = 'lib'
@@ -53,8 +53,8 @@ BOT_TOKEN = iCfgDict['bot_token']
 CHAT_ID = iCfgDict['chat_id']
 RPT_COUNT = int(iCfgDict['report_count'])
 
-
-
+# ping peer config
+TIME_OUT = int(iCfgDict['time_out'])
 PEER_JSON = os.path.join(gTopDir, iCfgDict['ping_peers'])
 PEER_DICT = None
 with open(PEER_JSON, 'r') as fh:
