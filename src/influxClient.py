@@ -14,7 +14,6 @@
 # License:     
 #-----------------------------------------------------------------------------
 
-
 import threading
 from influxdb import InfluxDBClient
 
