@@ -14,6 +14,7 @@
 #-----------------------------------------------------------------------------
 
 import time
+import json
 import requests
 from pythonping import ping
 from datetime import datetime
@@ -27,7 +28,7 @@ import udpCom
 TEST_MD = True  # Test mode flag.
 serverIDaddr = ('127.0.0.1', 3001) if TEST_MD else gv.HUB_IP 
 peerDict = gv.PEER_DICT
-pingRst = {}    # ping result dict
+pingRst = {}    # ping result dict in the passed 5 mins
 # UDP report connector
 iConnector = udpCom.udpClient(serverIDaddr)
 countT = gv.RPT_COUNT
@@ -53,7 +54,7 @@ def updateTeleBot():
         url = f"https://api.telegram.org/bot{gv.BOT_TOKEN}/sendMessage?chat_id={gv.CHAT_ID}&text={msg}"
         requests.get(url).json()
     except Exception as e:
-        Log.error('report to telegram error:')
+        Log.error('Report to telegram error:')
         Log.exception(str(e))
 
 #-----------------------------------------------------------------------------
@@ -64,19 +65,23 @@ def main():
     #for _ in range(PING_TM):
     while True:
         # ping the peers one by one.
+        crtPingRst = {} # current result
         for item in peerDict.items():
             key, val = item
             try:
-                data = ping(val, timeout=1, verbose=False)
+                data = ping(val, timeout=gv.TIME_OUT, verbose=False)
                 print(" Peer [%s] ping min: %s ms, avg: %s ms, max: %s ms" % (key, str(data.rtt_min_ms),  str(data.rtt_avg_ms), str(data.rtt_max_ms)))
                 Log.info('[%s]: min:%s,avg:%s,max:%s', key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms))
+                
                 pingRst[key].append(data.rtt_avg_ms)
-                msg = ';'.join((key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms)))
-                resp = iConnector.sendMsg(msg, resp=False)
+                crtPingRst[key] = (data.rtt_min_ms, data.rtt_avg_ms, data.rtt_max_ms)
                 time.sleep(1)
             except Exception as e:
                 Log.exception(e)
-
+            
+        # report the result to server
+        msg = ';'.join(('REP', gv.OWN_ID, json.dumps(crtPingRst)))
+        resp = iConnector.sendMsg(msg, resp=False)
         countT -= 1
         # call telegram API to message the reuslt to group 
         if countT == 0: updateTeleBot()

@@ -35,3 +35,9 @@ if os.path.exists(gLibDir):
     sys.path.insert(0, gLibDir)
 import Log
 Log.initLogger(gTopDir, 'Logs', APP_NAME[0], APP_NAME[1], historyCnt=100, fPutLogsUnderDate=True)
+
+
+UDP_PORT = 3001
+TB_NAME = 'gatewayDB'   # influx DB table name.
+
+RPT_TH = 60*5   # Client report threshold

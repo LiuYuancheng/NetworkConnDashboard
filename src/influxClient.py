@@ -15,14 +15,18 @@
 #-----------------------------------------------------------------------------
 
 import threading
+import time
+import json
+from statistics import mean
+
 from influxdb import InfluxDBClient
+import serverGlobal as gv
 
 import udpCom
 
 # Init the global value:
-UDP_PORT = 3001
+
 TEST_MODE = False       # test mode flag.
-TB_NAME = 'gatewayDB'   # influx DB table name.
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -33,7 +37,7 @@ class ServThread(threading.Thread):
     def __init__(self, parent, threadID, name):
         threading.Thread.__init__(self)
         self.parent = parent
-        self.server = udpCom.udpServer(None, UDP_PORT)
+        self.server = udpCom.udpServer(None, gv.UDP_PORT)
 
     def run(self):
         """ Start the udp server's main message handling loop."""
@@ -44,7 +48,7 @@ class ServThread(threading.Thread):
     def stop(self):
         """ Stop the udp server. Create a endclient to bypass the revFrom() block."""
         self.server.serverStop()
-        endClient = udpCom.udpClient(('127.0.0.1', UDP_PORT))
+        endClient = udpCom.udpClient(('127.0.0.1', gv.UDP_PORT))
         endClient.disconnect()
         endClient = None
 
@@ -78,7 +82,6 @@ class InfluxCli(object):
         print("Service started")
         self.udpServer.start()
 
-
 #-----------------------------------------------------------------------------
     def msgHandler(self, msg=None, ipAddr=None):
         """ handle the feed back message."""
@@ -107,12 +110,15 @@ class InfluxCli(object):
                 }
             }]
         self.dbClient.write_points(gwDatajson)
-
+     
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 def main():
-    client = InfluxCli(ipAddr=('localhost', 8086), dbInfo=('root', 'root', TB_NAME))
+    client = InfluxCli(ipAddr=('localhost', 8086), dbInfo=('root', 'root', gv.TB_NAME))
     client.startService()
+    for i in range(3):
+        print("xxx")
+        time.sleep(2)
 
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':

@@ -41,8 +41,11 @@ Log.initLogger(gTopDir, 'Logs', APP_NAME[0], APP_NAME[1], historyCnt=100, fPutLo
 
 # init the config file loader
 import ConfigLoader
-CFG_FILE = os.path.join(gTopDir, 'config.txt')
+CFG_FILE = os.path.join(gTopDir, 'clientConfig.txt')
 iCfgDict = ConfigLoader.ConfigLoader(CFG_FILE, mode='r').getJson()
+
+# Get OWN ID
+OWN_ID = iCfgDict['own_id']
 
 # server hub config 
 HUB_IP = eval(iCfgDict['hub_ipAddress'])
