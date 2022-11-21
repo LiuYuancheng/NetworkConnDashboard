@@ -41,3 +41,5 @@ UDP_PORT = 3001
 TB_NAME = 'gatewayDB'   # influx DB table name.
 
 RPT_TH = 60*5   # Client report threshold
+
+iDataMgr = None

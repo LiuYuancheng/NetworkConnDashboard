@@ -23,6 +23,8 @@ from influxdb import InfluxDBClient
 import serverGlobal as gv
 
 import udpCom
+import dataMgr
+
 
 # Init the global value:
 
@@ -86,11 +88,14 @@ class InfluxCli(object):
     def msgHandler(self, msg=None, ipAddr=None):
         """ handle the feed back message."""
         if isinstance(msg, bytes): msg = msg.decode('utf-8')
-        dataList = msg.split(';')
-        gwName, minP, avgP, maxP = dataList
-        self.writePingData(gwName, float(minP), float(avgP), float(maxP))
-        print(msg)
-
+        #dataList = msg.split(';')
+        _, id , dataJsonStr = msg.split(';')
+        gv.iDataMgr.addData(id,dataJsonStr)
+        dataDict = json.loads(dataJsonStr)
+        for item in dataDict.items():
+            key, val = item
+            self.writePingData(key, val[0], val[1], val[2])
+        print(json.dumps(dataDict, indent=4))
 #-----------------------------------------------------------------------------
     def writePingData(self, gwName, minP, avgP, maxP):
         """ Write the gateway data to the related gateway table based on gateway 
@@ -114,6 +119,7 @@ class InfluxCli(object):
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 def main():
+    gv.iDataMgr = dataMgr.dataManager()
     client = InfluxCli(ipAddr=('localhost', 8086), dbInfo=('root', 'root', gv.TB_NAME))
     client.startService()
     for i in range(3):
