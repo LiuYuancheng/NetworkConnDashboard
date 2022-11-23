@@ -1,0 +1,16 @@
+{
+    "public": "www.google.com.sg",
+    "socFW": "172.18.178.10",
+    "openstack_CT02": "10.0.6.2",
+    "openstack_CP01": "10.0.6.11",
+    "openstack_CP02": "10.0.6.12",
+    "openstack_CP03": "10.0.6.13",
+    "openstack_CP04": "10.0.6.20",
+    "KypoLite_01": "10.0.6.21",
+    "KypoLite_02": "10.0.6.22",
+    "CISS_RED_01": "10.0.6.23",
+    "CISS_RED_02": "10.0.6.24",
+    "ncl_GPU07": "10.0.6.25",
+    "ncl_GPU08": "10.0.6.26",
+    "ncl_GPU09": "10.0.6.27",    
+}
