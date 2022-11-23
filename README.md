@@ -238,11 +238,25 @@ Refer to `doc/ProblemAndSolution.md`
 
 <img src="https://user-images.githubusercontent.com/26474823/196844958-0b8c7689-d602-420a-b005-3c9ac1b3ed16.png" alt="drawing" width="600"/>
 
+------
+
+ToDo: 
+
+- [ ] Front end: Add the connection topology animation ajax display panel. (Same as the connection map)
+- [ ] Backend: Change influxDB 1.81x to influxDB 2.x OSS. Change from SQL-like query languages language [influxQL] to functional database language [Flux] 
+- [ ] Telegram-bot: add user control handling. (such as use type in /freq:10, then the program will update in the user's chat every 10min)
+
 
 
 ------
 
 ### Reference Link
+
+
+
+
+
+
 
 
 
