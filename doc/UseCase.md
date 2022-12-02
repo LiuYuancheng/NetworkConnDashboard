@@ -10,7 +10,7 @@ use Case1:
 
 use Case2: 
 
-
+![](img/useCase2_1.JPG)
 
 
 

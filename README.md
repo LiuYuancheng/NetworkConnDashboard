@@ -1,25 +1,65 @@
-# Network Connection Dashboard [Ping]
+# Server Connection Dashboard [Ping]
 
-**Program Design Purpose**: This program is a monitor hub system to check and display the servers/nodes connection state in each clusters' internal network. It can also used to monitor the network connection from a network to different specific peer/destination. 
+**Program Design Purpose**: This program is a monitor hub system to check and display the servers/switches/gateway/nodes connection state in each clusters' internal network. It can also used to monitor the network connection from a network to different specific peers/destination. 
 
 [TOC]
 
-
-
 ------
-
-
 
 ### Introduction
 
+The connection monitor hub system contents 2 main parts: 
+
+- A client program running as a agent to ping every nodes in a cluster and report to the hub data-manager. 
+- A Hub program with database, data management and web interface to store, process and visualize all the connection data. (The web dashboard is shown below)
+
 ![](doc/img/connectionHub.gif)
 
+`version: v_0.2`
+
+The program has been used for 
+
+Use case-1: The 
+
+[Singapore inaugural Critical Infrastructure Defence Exercise (CIDeX) 2022 infra]: https://itrust.sutd.edu.sg/cidex-2022/	" "
+
+cyber exercise to monitor the critical infra (Firewall, L1/L2 switches, VPN gateway, cluster control node) connection state. 
+
+[Check the detail usage ]: 
+
+Use case-2 :
+
+The NCL OpenStack staging cluster connection monitor. 
+
+[Check the detail usage]: 
+
+#### System Introduction
+
+The system will follow below work flow, the `pingClient` will connect to the `monitorHub` through HTTP or UDP.
+
+![](doc/img/workflowDiagram2.png)
+
+##### ping-Client program 
+
+The `pingClient` program is the agent program running on any of the computers inside the cluster. It contents a ping Json config file and will ping all the specific destination ip-address/domain periodically. The main features of the ping client are:
+
+Ping all the user specified nodes, connect the pre-process the data. 
+
+Summarize the data and  report the result to the `monitorHub` for data processing and visualization. It will also keep all the connection data in local storage as a backup, incase the client lose the connection to the monitor hub.
+
+##### monitor-Hub program
+
+The `monitorHub` program is a web-host program with one data manager to collect the data from all the client,  save the processed data into database , filter the process data to show in the web dashboard and create alert to send to the developer/customer's phone.
+
+#### User Interface Introduction
+
+For each monitored cluster, there will be one Home page dashboard and several connection latency chart  
 
 
-We want to check the NUS-COM3 multi purpose hall (MPH) 's internet and ethernet connection during a cyber-event. The system contents two pars: 
 
-1.  **pingClient** program: the pingClient program is the agent program running on any of the computer inside the cluster. It contents a ping list and will ping the destination ip-address/domain periodically, after collected the enough data, it will report the result to the monitor hub for data visualization. It will also keep all the ping data in local storage as a back incase the client lose the connection to the monitor hub.
-2.  **monitorHub** program: The monitorHub program is a web-host program with one data manager to collect the data from all the client and save the processed data into database , one dataBase to store the data and one dashboard host to allow the user to check the real time cluster state. 
+
+
+
 
 This is the system work topology diagram:
 
