@@ -4,6 +4,33 @@
 
 [TOC]
 
+- [Server Connection Dashboard [Ping]](#server-connection-dashboard--ping-)
+    + [Introduction](#introduction)
+      - [Use Case Introduction](#use-case-introduction)
+      - [System Introduction](#system-introduction)
+        * [ping-Client program](#ping-client-program)
+        * [monitor-Hub program](#monitor-hub-program)
+      - [User Interface Introduction](#user-interface-introduction)
+        * [Cluster Home Page](#cluster-home-page)
+        * [Connection Detail Dashboard](#connection-detail-dashboard)
+    + [System Design](#system-design)
+        * [ping-Client design](#ping-client-design)
+        * [monitor-Hub design](#monitor-hub-design)
+    + [Program Setup](#program-setup)
+          + [Development Environment : Python3.7.4, HTML+flask, Grafana Dashboard, InfluxDB-1.8.1.](#development-environment---python374--html-flask--grafana-dashboard--influxdb-181)
+      - [Additional Lib/Software Need](#additional-lib-software-need)
+        * [1.Python Lib installation](#1python-lib-installation)
+        * [2.Grafana installation](#2grafana-installation)
+        * [3.InfluxDB installation](#3influxdb-installation)
+          + [Hardware Needed: None](#hardware-needed--none)
+      - [Program files list](#program-files-list)
+    + [Program Usage](#program-usage)
+        * [Deploy the ping-Client](#deploy-the-ping-client)
+        * [Deploy the monitor-Hub](#deploy-the-monitor-hub)
+      
+      - [Problem and Solution](#problem-and-solution)
+    + [Reference Link](#reference-link)
+
 ------
 
 ### Introduction
@@ -15,23 +42,13 @@ The connection monitor hub system contents 2 main parts:
 
 ![](doc/img/connectionHub.gif)
 
-`version: v_0.2`
+#### Use Case Introduction
 
 The program has been used for 
 
-Use case-1: The 
+- **Use case-1**: The [Singapore inaugural Critical Infrastructure Defence Exercise (CIDeX) 2022 infra](https://itrust.sutd.edu.sg/cidex-2022/ ) cyber exercise to monitor the critical infra (Firewall, L1/L2 switches, VPN gateway, cluster control node) connection state. [Check the detail usage ]()
 
-[Singapore inaugural Critical Infrastructure Defence Exercise (CIDeX) 2022 infra]: https://itrust.sutd.edu.sg/cidex-2022/	" "
-
-cyber exercise to monitor the critical infra (Firewall, L1/L2 switches, VPN gateway, cluster control node) connection state. 
-
-[Check the detail usage ]: 
-
-Use case-2 :
-
-The NCL OpenStack staging cluster connection monitor. 
-
-[Check the detail usage]: 
+- **Use case-2** : The NCL OpenStack staging cluster connection monitor.  [Check the detail usage]()
 
 #### System Introduction
 
@@ -43,55 +60,50 @@ The system will follow below work flow, the `pingClient` will connect to the `mo
 
 The `pingClient` program is the agent program running on any of the computers inside the cluster. It contents a ping Json config file and will ping all the specific destination ip-address/domain periodically. The main features of the ping client are:
 
-Ping all the user specified nodes, connect the pre-process the data. 
+- Ping all the user specified nodes, connect the pre-process the data. 
 
-Summarize the data and  report the result to the `monitorHub` for data processing and visualization. It will also keep all the connection data in local storage as a backup, incase the client lose the connection to the monitor hub.
+
+- Summarize the data and  report the result to the `monitorHub` for data processing and visualization. 
+- Store/Log all the connection raw data in local storage as a backup (incase the client lose connection to the monitor hub).
 
 ##### monitor-Hub program
 
-The `monitorHub` program is a web-host program with one data manager to collect the data from all the client,  save the processed data into database , filter the process data to show in the web dashboard and create alert to send to the developer/customer's phone.
+The `monitorHub` program is a web-site with below feature: 
+
+- One front end web site to visualize the data. 
+- One database [backend] to save all data. 
+- One data manager [backend] to collect the data from all the client,  save the processed data into database , filter the process data to show in the web dashboard and create alert to send to the developer/customer's phone.
+- One Telegram robot to report the exception to user/manager.
 
 #### User Interface Introduction
 
-For each monitored cluster, there will be one Home page dashboard and several connection latency chart  
+For each monitored cluster, there will be one Home page dashboard and several connection latency chart: 
 
+##### Cluster Home Page
 
+The home page will show a geo-location-map marked the ping cluster's geo-location (GPS-position) and the ping destination peer location, a dashboard list to show all the ping detail dashboards and a alert list to show all the connection alert. (As shown below)
 
+![](doc/img/homeage2.png)
 
+##### Connection Detail Dashboard
 
-
-
-This is the system work topology diagram:
-
-![](doc/img/systemDiagram.png)
-
-`version 0.1`
-
-Web-dashboard UI view: 
-
-The Web dashboard contents 2 part: 
-
-**Home Page**: The home page will show a google map marked the ping client server's geo-location (GPS-position) and the ping destination, a dashboard list to show all the ping detail dashboards and a alert list to show all the connection alert. 
-
-![](doc/img/homePage.png)
-
-
-
-**Ping Detail Dashboard**: The ping dashboard will show all the ping chart diagram of the pingClient to every destination. 
+The ping dashboard will show all the ping charts diagram of the pingClient to every destination with the (min, avg max) latency data.
 
 ![](doc/img/dashboard1.png)
 
-
+> ```
+> version: v_0.2
+> ```
 
 ------
 
-### Program Design
+### System Design
 
-The system workflow diagram will be show below:
+The system work flow diagram will follow the workflow diagram shown in the introduction and system network topology will follow below diagram:
 
-![](doc/img/workflowDiagram2.png)
+![](doc/img/systemDiagram.png)
 
-##### pingClient
+##### ping-Client design
 
 Ping client will run as shown in the below workflow: 
 
@@ -104,9 +116,9 @@ graph LR;
 ```
 
 - User can pre-config the ping frequency in the config file and report frequency.
-- The client will calculate the ping min/avg/max value and log in the file. 
+- The client will calculate the ping min/avg/max value and log in local storage. 
 - The log file will be in the same directory as the program under `Logs` folder.
-- The log file nae format will be like this :  `ping_20221013_134258_1.txt` and the log each line of the log report will be same format as below: 
+- The log file name format will be like this :  `ping_20221013_134258_1.txt` and each line of the log report will be same format as below: 
 
 ```
 2022-10-13 13:42:58,715 INFO     [Google]: min:3.96,avg:5.29,max:6.83
@@ -115,12 +127,9 @@ graph LR;
 2022-10-13 13:43:01,852 INFO     [Singtel]: min:4.92,avg:7.16,max:8.91
 ```
 
-- Report to the hub by using UDP [port 3001]
+- Report to the hub by using UDP [port 3001] or http [80]
 
-
-
-
-**monitorHub** 
+##### monitor-Hub design
 
 The monitor hub run as shown in the below workflow:
 
@@ -136,9 +145,11 @@ graph LR;
     pingClient -- report result to data collector --> data_collecter
 ```
 
-- Save every ping data as a node in influxDB [table: gatewayDB]
+- Save all ping raw data as points in influxDB [table: `gatewayDB`]
 - Start data manager/collector to start a UPD server to handle the client data submit request. 
 - Grafana data fetch sql example: `SELECT last("avg") FROM "Google" WHERE $timeFilter GROUP BY time($__interval) fill(none)`
+- Use telegram-bot to report the alert/exception/summary of a time interval to the users.
+- The Connection Geo-location AjAX panel design refer to [Gateway-Topographic-Map](src/topologyMap/README.md)
 
 
 
@@ -146,7 +157,7 @@ graph LR;
 
 ### Program Setup
 
-###### Development Environment : Python3.7.4, HTML+flask, Grafana Dashboard, InfluxDB.
+###### Development Environment : Python3.7.4, HTML+flask, Grafana Dashboard, InfluxDB-1.8.1.
 
 #### Additional Lib/Software Need
 
@@ -167,12 +178,6 @@ graph LR;
 
 ###### Hardware Needed: None
 
-
-
-------
-
-
-
 #### Program files list 
 
 | Program File        | Execution Env | Description                                                  |
@@ -190,18 +195,20 @@ graph LR;
 
 
 
-##### Deploy the ping client script in the cluster need to monitored
+##### Deploy the ping-Client 
 
-1. Copy the src in one of the server/computer/laptop in the cluster, make sure the port 3001 UDP egress is configured as 'enable'
+The steps to deploy the pingClient script in the cluster need to monitored:
 
-2. Change the Hub ipaddress and the test mode flag in the file `pingClient.py`  as show below:
+**Step-1**: Copy the `src` folder in one of the server/computer/laptop in the cluster, make sure the port 3001 UDP egress is configured as '`enable`'. 
+
+**Step-2**: Change the Hub ipaddress and the test mode flag in the file `pingClient.py`  as show below:
 
 ```
-TEST_MD = True  # Test mode flag.
+TEST_MD = False  # Test mode flag, please change to False when you deploy in real environment.
 HUB_IP = ('127.0.0.1', 3001) if TEST_MD else ('172.18.178.6', 3001) 
 ```
 
-3. Add the ping destination in the address dictionary as shown below :
+**Step-3**: Add the ping destinations in the addresses dictionary ( file `pingPeers.json`) as shown below :
 
 ```
 ipAdrrDict = {
@@ -214,20 +221,22 @@ ipAdrrDict = {
 }
 ```
 
-4. Run the ping client program:
+**Step-4**: Run the ping client program:
 
 ```
 Win cmd: python pingClient.py
-Ubuntu cmnd: sudo python3 pingClient.py
+Ubuntu cmd: sudo python3 pingClient.py
 ```
 
 
 
-##### Deploy the monitor hub 
+##### Deploy the monitor-Hub 
 
-**Step-1: Start the influxDB service** 
+The steps to deploy the monitor hub script in the cluster need to monitored:
 
-Windows: Go to the influxDB installation folder and run the file `influxd.exe`
+**Step-1:** Start the influxDB service. 
+
+Windows: Go to the influxDB-1.8.1 installation folder and run the file `influxd.exe`
 
 ```
 example: D:\Tools\InfluxDB\influxdb-1.8.1-1 .influxd.exe
@@ -236,12 +245,14 @@ example: D:\Tools\InfluxDB\influxdb-1.8.1-1 .influxd.exe
 Ubuntu:
 
 ```
-
+sudo systemctl start influxd
 ```
 
-**Step-2: Start the Grafana service**
+For the first time config, please runt hte incluxDB client and crate the table '`gatewayDB`'. 
 
-Windows: auto run after you finish the config
+**Step-2**: Start the Grafana dashboard service
+
+Windows: Grafana dashboard wil lauto run after you finish the config.
 
 Ubuntu:
 
@@ -250,13 +261,19 @@ sudo systemctl restart grafana-server
 sudo systemctl status grafana-server
 ```
 
-**Step-3: run the monitor hub main program** 
+**Step-3**: Run the Geo-map display web host
+
+```
+python topologyMapHost.py
+```
+
+**Step-4**: Run the monitor hub main program 
 
 ```
 python influxClient.py
 ```
 
-**Step-4: Access the dashboard**
+**Step-5**: Access the web-site to view the dashboards
 
 Open dashboard url:  http://127.0.0.1:3000/ to access the dashboard home page: 
 
@@ -264,23 +281,20 @@ Open dashboard url:  http://127.0.0.1:3000/ to access the dashboard home page:
 
 Then select the dashboard in the dashboard list:
 
-![](doc/img/dashboard2.png)
+![](doc/img/dashboards1.png)
 
-Default Grafana admin password `admin / admin`
+```
+Default Grafana admin password `admin / admin` or 'admin / 123123'
+Default viewer password: 'viewer/viewer'
+```
 
 
 
-------
+#### Problem and Solution
 
-### Problem and Solution
+For common usage problem and solution, please refer to [Setup/Usage Problem and solution page](doc/ProblemAndSolution.md) 
 
-Refer to `doc/ProblemAndSolution.md`
-
-<img src="https://user-images.githubusercontent.com/26474823/196844958-0b8c7689-d602-420a-b005-3c9ac1b3ed16.png" alt="drawing" width="600"/>
-
-------
-
-ToDo: 
+Further development plan [Version v_0.3] ToDo] : 
 
 - [ ] Front end: Add the connection topology animation ajax display panel. (Same as the connection map)
 - [ ] Backend: Change influxDB 1.81x to influxDB 2.x OSS. Change from SQL-like query languages language [influxQL] to functional database language [Flux] 
@@ -292,17 +306,11 @@ ToDo:
 
 ### Reference Link
 
-
-
-
-
-
+- https://www.cyberithub.com/how-to-install-influxdb2-on-ubuntu-20-04-lts-step-by-step/
+- https://itrust.sutd.edu.sg/cidex-2022/
 
 
 
 ------
 
 > Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 13/10/2022
-
-
-
