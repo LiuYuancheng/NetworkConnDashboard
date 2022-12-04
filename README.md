@@ -27,7 +27,7 @@
     + [Program Usage](#program-usage)
         * [Deploy the ping-Client](#deploy-the-ping-client)
         * [Deploy the monitor-Hub](#deploy-the-monitor-hub)
-      
+        
       - [Problem and Solution](#problem-and-solution)
     + [Reference Link](#reference-link)
 
@@ -83,7 +83,7 @@ For each monitored cluster, there will be one Home page dashboard and several co
 
 The home page will show a geo-location-map marked the ping cluster's geo-location (GPS-position) and the ping destination peer location, a dashboard list to show all the ping detail dashboards and a alert list to show all the connection alert. (As shown below)
 
-![](doc/img/homeage2.png)
+![](doc/img/homepage2.png)
 
 ##### Connection Detail Dashboard
 
