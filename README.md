@@ -1,6 +1,8 @@
+
+
 # Server Connection Dashboard [Ping]
 
-**Program Design Purpose**: This program is a monitor hub system to check and display the servers/switches/gateway/nodes connection state in each clusters' internal network. It can also used to monitor the network connection from a network to different specific peers/destination. 
+**Program Design Purpose**: This program is a monitor hub system to check and display the servers/switches/gateways/nodes connection state in each clusters' internal network. It can also be used to monitor the network connection from a network to different specific peers/destination. 
 
 [TOC]
 
@@ -37,34 +39,38 @@
 
 The connection monitor hub system contents 2 main parts: 
 
-- A client program running as a agent to ping every nodes in a cluster and report to the hub data-manager. 
-- A Hub program with database, data management and web interface to store, process and visualize all the connection data. (The web dashboard is shown below)
+- A client program running as an agent to ping every nodes in a cluster and report to the monitor-hub's data-manager. 
+- A Hub program with database, data parsing+management module and web interface to store, process and visualize all the connection data. (The web dashboard is shown below)
 
 ![](doc/img/connectionHub.gif)
 
+
+
 #### Use Case Introduction
 
-The program has been used for 
+The program has been used for one cyber exercise event and one academic infra service provider:
 
-- **Use case-1**: The [Singapore inaugural Critical Infrastructure Defence Exercise (CIDeX) 2022 infra](https://itrust.sutd.edu.sg/cidex-2022/ ) cyber exercise to monitor the critical infra (Firewall, L1/L2 switches, VPN gateway, cluster control node) connection state. [Check the detail usage ]()
+- **Use case-1**: The [Singapore inaugural Critical Infrastructure Defence Exercise (CIDeX) 2022 infra](https://itrust.sutd.edu.sg/cidex-2022/ ) cyber exercise to monitor the critical infra (Firewalls, L1/L2 switches, VPN gateway, cluster control node) connection state. [Check the detail usage ](doc/UseCase.md)
 
-- **Use case-2** : The NCL OpenStack staging cluster connection monitor.  [Check the detail usage]()
+- **Use case-2** : The NCL OpenStack staging cluster connection monitor.  [Check the detail usage](doc/UseCase.md)
+
+
 
 #### System Introduction
 
-The system will follow below work flow, the `pingClient` will connect to the `monitorHub` through HTTP or UDP.
+The system will follow below work-flow diagram, the `pingClient` will connect to the `monitorHub` through HTTP POST request or UDP( port 3001).
 
 ![](doc/img/workflowDiagram2.png)
 
 ##### ping-Client program 
 
-The `pingClient` program is the agent program running on any of the computers inside the cluster. It contents a ping Json config file and will ping all the specific destination ip-address/domain periodically. The main features of the ping client are:
+The `pingClient` program is the agent program running on any of the computers(nodes) inside the cluster. It  will ping all the specific destination ip-address/domain periodically based on the user configured Json config file. The main features of the ping client are:
 
-- Ping all the user specified nodes, connect the pre-process the data. 
+- Ping all the user specified nodes periodically , connect the pre-process the data. 
 
 
-- Summarize the data and  report the result to the `monitorHub` for data processing and visualization. 
-- Store/Log all the connection raw data in local storage as a backup (incase the client lose connection to the monitor hub).
+- Summarize the data and report the result to the `monitorHub` for data processing and visualization. 
+- Store/Log all the connection raw data in node's local storage as a backup (incase the client lose connection to the monitor hub).
 
 ##### monitor-Hub program
 
@@ -75,19 +81,21 @@ The `monitorHub` program is a web-site with below feature:
 - One data manager [backend] to collect the data from all the client,  save the processed data into database , filter the process data to show in the web dashboard and create alert to send to the developer/customer's phone.
 - One Telegram robot to report the exception to user/manager.
 
+
+
 #### User Interface Introduction
 
-For each monitored cluster, there will be one Home page dashboard and several connection latency chart: 
+For each monitored cluster, there will be one home page dashboard and several connection latency chart: 
 
 ##### Cluster Home Page
 
-The home page will show a geo-location-map marked the ping cluster's geo-location (GPS-position) and the ping destination peer location, a dashboard list to show all the ping detail dashboards and a alert list to show all the connection alert. (As shown below)
+The home page will show a geo-location-map marked the ping cluster's geo-location (GPS-position) and the ping destination peer location, a list to show all the ping detail dashboards and a alert list to show all the connection alerts for the user/system-admin to check. (As shown below)
 
 ![](doc/img/homepage2.png)
 
 ##### Connection Detail Dashboard
 
-The ping dashboard will show all the ping charts diagram of the pingClient to every destination with the (min, avg max) latency data.
+The ping detail dashboard will show all the ping charts diagram of the pingClient to every destination with the (min, avg max) latency data.
 
 ![](doc/img/dashboard1.png)
 
@@ -95,13 +103,17 @@ The ping dashboard will show all the ping charts diagram of the pingClient to ev
 > version: v_0.2
 > ```
 
+
+
 ------
 
 ### System Design
 
-The system work flow diagram will follow the workflow diagram shown in the introduction and system network topology will follow below diagram:
+The system work flow diagram will follow the diagram shown in the introduction and system network topology will follow below diagram:
 
 ![](doc/img/systemDiagram.png)
+
+
 
 ##### ping-Client design
 
@@ -109,15 +121,30 @@ Ping client will run as shown in the below workflow:
 
 ```mermaid
 graph LR;
-    Program_init -- load ping dict --> ping_dist_in_sequence;
+    Program_init -- load ping destination --> ping_dest_in_sequence;
     ping_dist_in_sequence -- calculate min/avg/max --> log_reuslt_in_local;
-    log_reuslt_in_local -- sleep a short while --> ping_dist_in_sequence;
+    log_reuslt_in_local -- sleep a short while --> ping_dest_in_sequence;
     log_reuslt_in_local -- build report package --> report_result_to_hub;
 ```
 
 - User can pre-config the ping frequency in the config file and report frequency.
+
+  ```
+  # a ping config file example
+  {
+      "Google": "www.google.com.sg",
+      "CR1": "172.18.178.10",
+      "Sutd": "202.94.70.56",
+      "Singtel": "www.singtel.com.sg",
+      "Gov_sg": "gov.sg",
+      "Bbc_co_uk": "BBC.CO.UK"
+  }
+  ```
+
 - The client will calculate the ping min/avg/max value and log in local storage. 
+
 - The log file will be in the same directory as the program under `Logs` folder.
+
 - The log file name format will be like this :  `ping_20221013_134258_1.txt` and each line of the log report will be same format as below: 
 
 ```
@@ -129,9 +156,11 @@ graph LR;
 
 - Report to the hub by using UDP [port 3001] or http [80]
 
+
+
 ##### monitor-Hub design
 
-The monitor hub run as shown in the below workflow:
+The monitor hub will run as shown in the below workflow:
 
 ```mermaid
 graph LR;
@@ -145,11 +174,24 @@ graph LR;
     pingClient -- report result to data collector --> data_collecter
 ```
 
-- Save all ping raw data as points in influxDB [table: `gatewayDB`]
+- Save all ping raw data as points in influxDB [ table: `gatewayDB` ]
 - Start data manager/collector to start a UPD server to handle the client data submit request. 
-- Grafana data fetch sql example: `SELECT last("avg") FROM "Google" WHERE $timeFilter GROUP BY time($__interval) fill(none)`
-- Use telegram-bot to report the alert/exception/summary of a time interval to the users.
+- Grafana data fetch SQL(InfluxQL) example: `SELECT last("avg") FROM "Google" WHERE $timeFilter GROUP BY time($__interval) fill(none)`
+- Use Telegram-bot to report the alert/exception/summary of a time interval to the related user.
 - The Connection Geo-location AjAX panel design refer to [Gateway-Topographic-Map](src/topologyMap/README.md)
+
+This is the monitor hub data flow:
+
+```mermaid
+graph LR;
+Raw_data  -- Raw_connection_data --> Influx_data_base;
+Raw_data  -- Exception_data --> Alert_data_base;
+Alert_data_base -- alert_data --> Telegram-bot;
+Raw_data  -- summerized_data --> Connection_map;
+Raw_data  -- summerized_data --> Telegram-bot;
+
+
+```
 
 
 
@@ -157,7 +199,9 @@ graph LR;
 
 ### Program Setup
 
-###### Development Environment : Python3.7.4, HTML+flask, Grafana Dashboard, InfluxDB-1.8.1.
+#### Development Environment : 
+
+Python3.7.4, HTML+flask, SQLite3, Grafana Dashboard, InfluxDB-1.8.1.
 
 #### Additional Lib/Software Need
 
@@ -176,16 +220,26 @@ graph LR;
 - Windows: https://docs.influxdata.com/influxdb/v2.4/install/?t=Windows
 - Ubuntu: https://docs.influxdata.com/influxdb/v1.8/introduction/install/ or https://docs.influxdata.com/influxdb/v1.8/introduction/get-started/
 
-###### Hardware Needed: None
+##### 4.Telegram-bot
+
+- API: https://medium.com/codex/using-python-to-send-telegram-messages-in-3-simple-steps-419a8b5e5e2 
+
+#### Hardware Needed: 
+
+- None
 
 #### Program files list 
 
-| Program File        | Execution Env | Description                                                  |
-| ------------------- | ------------- | ------------------------------------------------------------ |
-| src/influxClient.py | python3       | Monitor hub data manager:  run as the bridge(data manager) between the influxDB database and all the report-clients. It will collect the message from the ping clients, do data filtering and insert valid data in the database. |
-| src/pingClient.py   | python3       | This module will ping the destination ip/url in the dict periodically, save the ping result in local disk and report result to the server side. |
-| src/Log.py          |               | message log module.                                          |
-| src/udpCom.py       |               | UDP data communication module.                               |
+| Program File         | Execution Env | Description                                                  |
+| -------------------- | ------------- | ------------------------------------------------------------ |
+| src/influxClient.py  | python3       | Monitor hub data manager:  run as the bridge(data manager) between the influxDB database and all the report-clients. It will collect the message from the ping clients, do data filtering and insert valid data in the database. |
+| src/dataMgr.py       | python3       | Data manager module.                                         |
+| *Glocal.py           |               | The global var config file.                                  |
+| src/pingClient.py    | python3       | This module will ping the destination ip/url in the dict periodically, save the ping result in local disk and report result to the server side. |
+| src/clientConfig.txt |               | pingClient cluster config file.                              |
+| pingPeers.json       |               | cluster's ping peer config file.                             |
+| src/lib/*.py         | python3       | All the lib files.                                           |
+| src/topologyMap      |               | Connection topology map module.                              |
 
 
 
@@ -197,7 +251,7 @@ graph LR;
 
 ##### Deploy the ping-Client 
 
-The steps to deploy the pingClient script in the cluster need to monitored:
+The steps to deploy the pingClient script in the cluster need to be monitored:
 
 **Step-1**: Copy the `src` folder in one of the server/computer/laptop in the cluster, make sure the port 3001 UDP egress is configured as '`enable`'. 
 
@@ -248,11 +302,11 @@ Ubuntu:
 sudo systemctl start influxd
 ```
 
-For the first time config, please runt hte incluxDB client and crate the table '`gatewayDB`'. 
+For the first time config, please run the influxDB client and create the table '`gatewayDB`'. 
 
 **Step-2**: Start the Grafana dashboard service
 
-Windows: Grafana dashboard wil lauto run after you finish the config.
+Windows: Grafana dashboard will auto run after you finish the config.
 
 Ubuntu:
 
@@ -313,4 +367,4 @@ Further development plan [Version v_0.3] ToDo] :
 
 ------
 
-> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 13/10/2022
+> Last edit by LiuYuancheng (liu_yuan_cheng@hotmail.com) at 13/10/2022
