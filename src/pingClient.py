@@ -24,8 +24,10 @@ import clientGlobal as gv
 # import the lib modules
 import Log
 import udpCom
+import pingActor
 
-TEST_MD = True  # Test mode flag.
+TEST_MD = True      # Test mode flag.
+PING_ACTOR= True    # flag to identify whether use the ping actor.
 serverIDaddr = ('127.0.0.1', 3001) if TEST_MD else gv.HUB_IP 
 peerDict = gv.PEER_DICT
 pingRst = {}    # ping result dict in the passed 5 mins
@@ -62,31 +64,60 @@ def updateTeleBot():
 def main():
     global countT
     resetResult()
-    #for _ in range(PING_TM):
-    while True:
-        # ping the peers one by one.
-        crtPingRst = {} # current result
+    crtPingRst = {}
+    if PING_ACTOR:
+        actor = pingActor.pingActor({},parallel=False, Log=Log, showConsole=False)
+        print(peerDict)
         for item in peerDict.items():
             key, val = item
+            actor.addDest(val, 1)
+        actor.setPingTimeout(gv.TIME_OUT)
+        actor.setPingInterval(1)
+
+        while True:
             try:
-                data = ping(val, timeout=gv.TIME_OUT, verbose=False)
-                print(" Peer [%s] ping min: %s ms, avg: %s ms, max: %s ms" % (key, str(data.rtt_min_ms),  str(data.rtt_avg_ms), str(data.rtt_max_ms)))
-                Log.info('[%s]: min:%s,avg:%s,max:%s', key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms))
-                
-                pingRst[key].append(data.rtt_avg_ms)
-                crtPingRst[key] = (data.rtt_min_ms, data.rtt_avg_ms, data.rtt_max_ms)
-                time.sleep(1)
+                resultDict = actor.runPing()
+                print(resultDict)
+                for item in peerDict.items():
+                    key, val = item
+                    pingRst[key].append(resultDict[val][0][1])
+                    crtPingRst[key] = resultDict[val][0]
             except Exception as e:
-                Log.exception(e)
+                    Log.exception(e)
+            msg = ';'.join(('REP', gv.OWN_ID, json.dumps(crtPingRst)))
+            resp = iConnector.sendMsg(msg, resp=False)
+            countT -= 1
+            # call telegram API to message the reuslt to group 
+            if countT == 0: updateTeleBot()
+            time.sleep(gv.PING_INT)
+        
+        Log.info("Finished the ping test.")
+    else:
+        while True:
+            # ping the peers one by one.
+            crtPingRst = {} # current result
+            for item in peerDict.items():
+                key, val = item
+                try:
+                    data = ping(val, timeout=gv.TIME_OUT, verbose=False)
+                    print(" Peer [%s] ping min: %s ms, avg: %s ms, max: %s ms" % (key, str(data.rtt_min_ms),  str(data.rtt_avg_ms), str(data.rtt_max_ms)))
+                    Log.info('[%s]: min:%s,avg:%s,max:%s', key, str(data.rtt_min_ms), str(data.rtt_avg_ms), str(data.rtt_max_ms))
+                    
+                    pingRst[key].append(data.rtt_avg_ms)
+                    crtPingRst[key] = (data.rtt_min_ms, data.rtt_avg_ms, data.rtt_max_ms)
+                    time.sleep(1)
+                except Exception as e:
+                    Log.exception(e)
+                
+            # report the result to server
+            msg = ';'.join(('REP', gv.OWN_ID, json.dumps(crtPingRst)))
             
-        # report the result to server
-        msg = ';'.join(('REP', gv.OWN_ID, json.dumps(crtPingRst)))
-        resp = iConnector.sendMsg(msg, resp=False)
-        countT -= 1
-        # call telegram API to message the reuslt to group 
-        if countT == 0: updateTeleBot()
-        time.sleep(gv.PING_INT)
-    Log.info("Finished the ping test.")
+            resp = iConnector.sendMsg(msg, resp=False)
+            countT -= 1
+            # call telegram API to message the reuslt to group 
+            if countT == 0: updateTeleBot()
+            time.sleep(gv.PING_INT)
+        Log.info("Finished the ping test.")
 
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':
